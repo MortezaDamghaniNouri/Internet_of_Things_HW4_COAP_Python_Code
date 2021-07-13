@@ -16,21 +16,24 @@ data = [
 serverAddressPort = ("192.168.1.101", 20001)
 bufferSize = 1024
 UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-msgFromClient = "put"
-bytesToSend = str.encode(msgFromClient)
+coap_packet = "version: 1, type: NON, code: put, payload: start_communication"
+bytesToSend = str.encode(coap_packet)
 UDPClientSocket.sendto(bytesToSend, serverAddressPort)
-msgFromClient = "10"
-bytesToSend = str.encode(msgFromClient)
-UDPClientSocket.sendto(bytesToSend, serverAddressPort)
-msgFromClient = "farm"
-bytesToSend = str.encode(msgFromClient)
-UDPClientSocket.sendto(bytesToSend, serverAddressPort)
+
+
+
+
 i = 0
 while i < 10:
-    msgFromClient = str(data[i])
-    bytesToSend = str.encode(msgFromClient)
+
+    string_data = str(data[i])
+    coap_packet = "version: 1, type: NON, code: put, payload: " + string_data
+    bytesToSend = str.encode(coap_packet)
     UDPClientSocket.sendto(bytesToSend, serverAddressPort)
     i += 1
+
+
+
 msgFromServer = UDPClientSocket.recvfrom(bufferSize)
 msg = "Message from Server {}".format(msgFromServer[0])
 print(msg)

@@ -14,15 +14,10 @@ home_file = open("E:\MyCodes\Web Codes\IoT_HW4_COAP_Subscriber\Home_Content.txt"
 serverAddressPort = ("192.168.1.101", 20001)
 bufferSize = 1024
 UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-msgFromClient = "get"
+msgFromClient = "version: 1, type: NON, code: get, functionality: farm, payload: start_communication"
 bytesToSend = str.encode(msgFromClient)
 UDPClientSocket.sendto(bytesToSend, serverAddressPort)
-msgFromClient = "10"
-bytesToSend = str.encode(msgFromClient)
-UDPClientSocket.sendto(bytesToSend, serverAddressPort)
-msgFromClient = "farm"
-bytesToSend = str.encode(msgFromClient)
-UDPClientSocket.sendto(bytesToSend, serverAddressPort)
+
 i = 0
 while i < 10:
     bytesAddressPair = UDPClientSocket.recvfrom(bufferSize)
@@ -30,8 +25,6 @@ while i < 10:
     serverMessage = str(message.decode())
     print("Server message: " + serverMessage)
     farm_file.write(serverMessage + "\n")
-
-
     i += 1
 msgFromServer = UDPClientSocket.recvfrom(bufferSize)
 msg = "Message from Server {}".format(msgFromServer[0])
@@ -41,13 +34,7 @@ print(msg)
 serverAddressPort = ("192.168.1.101", 20001)
 bufferSize = 1024
 UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-msgFromClient = "get"
-bytesToSend = str.encode(msgFromClient)
-UDPClientSocket.sendto(bytesToSend, serverAddressPort)
-msgFromClient = "10"
-bytesToSend = str.encode(msgFromClient)
-UDPClientSocket.sendto(bytesToSend, serverAddressPort)
-msgFromClient = "home"
+msgFromClient = "version: 1, type: NON, code: get, functionality: home, payload: start_communication"
 bytesToSend = str.encode(msgFromClient)
 UDPClientSocket.sendto(bytesToSend, serverAddressPort)
 i = 0
@@ -57,8 +44,6 @@ while i < 10:
     serverMessage = str(message.decode())
     print("Server message: " + serverMessage)
     home_file.write(serverMessage + "\n")
-
-
     i += 1
 msgFromServer = UDPClientSocket.recvfrom(bufferSize)
 msg = "Message from Server {}".format(msgFromServer[0])

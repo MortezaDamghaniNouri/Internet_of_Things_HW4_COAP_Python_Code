@@ -4,109 +4,77 @@ homeData = []
 farmData = []
 
 
-
 localIP = "192.168.1.101"
-
 localPort = 20001
-
 bufferSize = 1024
-
-
-
-# Create a datagram socket
-
 UDPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-
-# Bind to address and ip
-
 UDPServerSocket.bind((localIP, localPort))
 
 print("COAP server up and listening")
-
 # Listening for incoming clients
-
 while True:
     bytesAddressPair = UDPServerSocket.recvfrom(bufferSize)
-
     message = bytesAddressPair[0]
-
     address = bytesAddressPair[1]
-
-    clientMethod = str(message.decode())
     clientIP = "Client IP Address:{}".format(address)
-
-    print(clientMethod)
+    clientMessage = str(message.decode())
+    print(clientMessage)
     print(clientIP)
-
-
-    bytesAddressPair = UDPServerSocket.recvfrom(bufferSize)
-
-    message = bytesAddressPair[0]
-
-    clientPayloadSize = str(message.decode())
-    print("Client payload size consists of " + clientPayloadSize + " parts")
-
-    bytesAddressPair = UDPServerSocket.recvfrom(bufferSize)
-
-    message = bytesAddressPair[0]
-
-    clientFunctionality = str(message.decode())
-    print("Client functionality: " + clientFunctionality)
-
-
-    if clientMethod == "put" and clientFunctionality == "home":
+    if clientMessage.find("put") != -1:
         i = 0
-        while i < int(clientPayloadSize):
+        while i < 10:
             bytesAddressPair = UDPServerSocket.recvfrom(bufferSize)
-
             message = bytesAddressPair[0]
-
             clientMessage = str(message.decode())
             print("Client message: " + clientMessage)
-            homeData.append(clientMessage)
+            if clientMessage.find("Home") != -1:
+                j = clientMessage.find("payload") + 9
+                input_data = ""
+                clientMessageList = list(clientMessage)
+                while j < len(clientMessageList):
+                    input_data += clientMessageList[j]
+                    j += 1
+                homeData.append(input_data)
+
+            if clientMessage.find("Farm") != -1:
+                j = clientMessage.find("payload") + 9
+                input_data = ""
+                clientMessageList = list(clientMessage)
+                while j < len(clientMessageList):
+                    input_data += clientMessageList[j]
+                    j += 1
+                farmData.append(input_data)
             i += 1
 
-    if clientMethod == "put" and clientFunctionality == "farm":
+    if clientMessage.find("get") != -1 and clientMessage.find("home") != -1:
         i = 0
-        while i < int(clientPayloadSize):
-            bytesAddressPair = UDPServerSocket.recvfrom(bufferSize)
-
-            message = bytesAddressPair[0]
-
-            clientMessage = str(message.decode())
-            print("Client message: " + clientMessage)
-            farmData.append(clientMessage)
-            i += 1
-
-    if clientMethod == "get" and clientFunctionality == "home":
-        i = 0
-        while i < int(clientPayloadSize):
+        while i < 10:
             msgFromServer = homeData[i]
 
-            bytesToSend = str.encode(msgFromServer)
+            bytesToSend = str(msgFromServer).encode()
 
             UDPServerSocket.sendto(bytesToSend, address)
             i += 1
-
-    if clientMethod == "get" and clientFunctionality == "farm":
+    if clientMessage.find("get") != -1 and clientMessage.find("farm") != -1:
         i = 0
-        while i < int(clientPayloadSize):
+        while i < 10:
             msgFromServer = farmData[i]
 
-            bytesToSend = str.encode(msgFromServer)
+            bytesToSend = str(msgFromServer).encode()
 
             UDPServerSocket.sendto(bytesToSend, address)
             i += 1
 
-    print("THE FARM DATA IS: ")
-    for i in farmData:
-        print(i)
 
-    print("THE HOME DATA IS: ")
-    for i in homeData:
-        print(i)
-
-    # Sending a reply to client
-    msgFromServer = "Done"
+    # Sending final response to the clients
+    msgFromServer = "version: 1, type: NON, code: put, payload: Done"
     bytesToSend = str.encode(msgFromServer)
     UDPServerSocket.sendto(bytesToSend, address)
+
+    # print("Farm: ")
+    # for i in farmData:
+    #     print(i)
+    # print("Home: ")
+    # for i in homeData:
+    #     print(i)
+
